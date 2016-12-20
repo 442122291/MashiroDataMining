@@ -15,7 +15,6 @@ from sklearn.model_selection import cross_val_score
 
 
 class TestSklearn(object):
-
     @classmethod
     def from_class(cls):
         attrs = ['person_names', 'place_names', 'firms', 'cultures', 'others']
@@ -34,7 +33,9 @@ class TestSklearn(object):
             with open(filename, 'r') as f:
                 for item in f.readlines():
                     item = item.strip().replace('《', '').replace('》', '')
-                    word_set.add(unicode(item))
+                    if item not in word_set:
+                        jieba.add_word(item)
+                        word_set.add(unicode(item))
         return word_set
 
     def create_vector(self, item):
@@ -70,8 +71,8 @@ class TestSklearn(object):
 
 
 if __name__ == '__main__':
+    # 构建SVM分类器
     # test_sklearn = TestSklearn.from_class()
-    # # 构建SVM分类器
     # try:
     #     with open('SVC.pickle') as f:
     #         clf = pickle.load(f)
@@ -91,10 +92,10 @@ if __name__ == '__main__':
     #         pickle.dump(clf, f)
     # feature_vectors = []
     # tags = []
-    # filenames = ['backup/tag%d.json' % i for i in [7, 8, 6]]
+    # filenames = ['backup/tag%d.json' % i for i in [7, 8, 9]]
     # for filename in filenames:
     #     _feature_vectors, _tags = test_sklearn.getXY(filename)
-    #     feature_vectors = _feature_vectors
+    #     feature_vectors += _feature_vectors
     #     tags += _tags
     # # 机器分类结果results
     # wrong_result = []
@@ -106,9 +107,8 @@ if __name__ == '__main__':
     # for i in range(len(tags)):
     #     if tags[i] == results[i]:
     #         count += 1
-    #         # else:
-    #
-    #         # wrong_result.append(i)
+    #     # else:
+    #     #     wrong_result.append(i)
     #     if tags[i] == 1:
     #         count_fenmu += 1
     #         if results[i] == 1:
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     test_sklearn = TestSklearn.from_class()
     feature_vectors = []
     tags = []
-    filenames = ['backup/tag%s.json' % i for i in [1, 2, 5, 6, 7, 8]]
+    filenames = ['backup/tag%s.json' % i for i in [1, 2, 5, 7, 8, 9]]
     # for num in range(1, 7):
     #     filenames.append('backup/tag%s.json' % num)
     # filenames.append('backup/tag6.json')
@@ -130,5 +130,6 @@ if __name__ == '__main__':
     X = np.array(feature_vectors)
     y = np.array(tags)
     clf = SVC()
-    scores = cross_val_score(clf, X, y, cv=11)
+    scores = cross_val_score(clf, X, y, cv=10)
+    print scores
     print scores.mean()
